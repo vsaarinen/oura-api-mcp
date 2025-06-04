@@ -37,54 +37,61 @@ npm run dev
 
 The server provides access to the following Oura API endpoints as MCP resources:
 
-### Static Resources (No Parameters)
-- `oura://personal_info` - Personal information
-- `oura://ring_configuration` - Ring configuration data
+### Personal Information
+- URI Template: `oura://personal_info/{token}`
+- Description: User's personal information including age, weight, height, and biological sex from their Oura profile
 
-### Time-Based Resources
-All of these resources accept `start_date` and `end_date` parameters in the URI:
+### Sleep Data
+- URI Template: `oura://daily_sleep/{token}/{start_date}/{end_date}`
+- Description: Daily sleep metrics including total sleep time, sleep score, and sleep efficiency
 
-- `oura://daily_sleep/{start_date}/{end_date}` - Daily sleep summaries
-- `oura://sleep/{start_date}/{end_date}` - Detailed sleep documents
-- `oura://daily_activity/{start_date}/{end_date}` - Daily activity data
-- `oura://daily_readiness/{start_date}/{end_date}` - Daily readiness scores
-- `oura://heart_rate/{start_date}/{end_date}` - Heart rate measurements
-- `oura://sessions/{start_date}/{end_date}` - Session data
-- `oura://tags/{start_date}/{end_date}` - Tags data
-- `oura://workouts/{start_date}/{end_date}` - Workout data
-- `oura://daily_stress/{start_date}/{end_date}` - Daily stress data
-- `oura://rest_mode/{start_date}/{end_date}` - Rest mode periods
+### Detailed Sleep Analysis
+- URI Template: `oura://sleep/{start_date}/{end_date}`
+- Description: Detailed sleep analysis including sleep stages, heart rate, HRV, and temperature variations for individual sleep sessions
 
-Dates should be provided in ISO 8601 format (YYYY-MM-DD).
+### Activity Data
+- URI Template: `oura://daily_activity/{start_date}/{end_date}`
+- Description: Daily activity metrics including steps, calories burned, activity score, and movement throughout the day
 
-## Available Tools
+### Readiness Data
+- URI Template: `oura://daily_readiness/{start_date}/{end_date}`
+- Description: Daily readiness score and contributing factors like sleep balance, activity balance, and body temperature
 
-- `search-oura-data` - Search through Oura data with optional date range filtering
-  - Parameters:
-    - `query` (required): Search term to filter data
-    - `start_date` (optional): Start date in YYYY-MM-DD format
-    - `end_date` (optional): End date in YYYY-MM-DD format
+### Heart Rate Data
+- URI Template: `oura://heart_rate/{start_date}/{end_date}`
+- Description: Continuous heart rate measurements throughout the day and night
 
-## Testing
+### Session Data
+- URI Template: `oura://sessions/{start_date}/{end_date}`
+- Description: Meditation, relaxation, and other focused sessions recorded by the user
 
-### Manual Testing
-1. Start the server in one terminal:
-```bash
-npm start
-```
+### Tags
+- URI Template: `oura://tags/{start_date}/{end_date}`
+- Description: User-created tags and annotations for tracking lifestyle factors, symptoms, or other personal markers
 
-2. In another terminal, run the test client:
-```bash
-npm run client
-```
+### Workout Data
+- URI Template: `oura://workouts/{start_date}/{end_date}`
+- Description: Workout sessions including type, duration, intensity, and associated biometric data
 
-The test client will:
-- Connect to the server
-- List available resources and tools
-- Test the personal info resource
-- Test daily sleep data with a date range
-- Test the search tool
+### Stress Data
+- URI Template: `oura://daily_stress/{start_date}/{end_date}`
+- Description: Daily stress levels and recovery metrics based on heart rate variability and other biometric data
 
-## Security Note
+### Rest Mode Periods
+- URI Template: `oura://rest_mode/{start_date}/{end_date}`
+- Description: Periods when the user has enabled Rest Mode, indicating times of illness, recovery, or reduced activity
 
-Make sure to keep your Oura API token secure and never commit it to version control. 
+### Ring Configuration
+- URI Template: `oura://ring_configuration/{token}`
+- Description: Technical details about the user's Oura ring including hardware version, firmware version, and sizing information
+
+## Tools
+
+### Search Oura Data
+A tool to search through all available Oura data endpoints based on a query string.
+
+Parameters:
+- `token`: Oura API token
+- `query`: Search query string
+- `start_date`: (Optional) Start date in YYYY-MM-DD format
+- `end_date`: (Optional) End date in YYYY-MM-DD format 
