@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import axios from 'axios';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { z } from 'zod';
 
@@ -20,13 +20,15 @@ const ouraClient = axios.create({
   },
 });
 
+type Variables = Record<string, string | string[]>;
+
 // Create an MCP server
 const server = new McpServer({
   name: "Oura API",
   version: "1.0.0"
 });
 
-// Add resources for each Oura API endpoint
+// Personal Info
 server.resource(
   "personal-info",
   "oura://personal_info",
@@ -36,7 +38,7 @@ server.resource(
       return {
         contents: [{
           uri: "oura://personal_info",
-          text: JSON.stringify(response.data, null, 2)
+          text: JSON.stringify(response.data)
         }]
       };
     } catch (error) {
@@ -46,16 +48,22 @@ server.resource(
   }
 );
 
+// Daily Sleep
 server.resource(
   "daily-sleep",
-  "oura://daily_sleep",
-  async () => {
+  new ResourceTemplate("oura://daily_sleep/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
     try {
-      const response = await ouraClient.get('/usercollection/daily_sleep');
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/daily_sleep', {
+        params: { start_date, end_date }
+      });
       return {
         contents: [{
-          uri: "oura://daily_sleep",
-          text: JSON.stringify(response.data, null, 2)
+          uri: uri.href,
+          text: JSON.stringify(response.data)
         }]
       };
     } catch (error) {
@@ -65,16 +73,47 @@ server.resource(
   }
 );
 
+// Sleep Documents
 server.resource(
-  "daily-activity",
-  "oura://daily_activity",
-  async () => {
+  "sleep",
+  new ResourceTemplate("oura://sleep/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
     try {
-      const response = await ouraClient.get('/usercollection/daily_activity');
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/sleep', {
+        params: { start_date, end_date }
+      });
       return {
         contents: [{
-          uri: "oura://daily_activity",
-          text: JSON.stringify(response.data, null, 2)
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching sleep:', error);
+      throw error;
+    }
+  }
+);
+
+// Daily Activity
+server.resource(
+  "daily-activity",
+  new ResourceTemplate("oura://daily_activity/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/daily_activity', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
         }]
       };
     } catch (error) {
@@ -84,16 +123,22 @@ server.resource(
   }
 );
 
+// Daily Readiness
 server.resource(
   "daily-readiness",
-  "oura://daily_readiness",
-  async () => {
+  new ResourceTemplate("oura://daily_readiness/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
     try {
-      const response = await ouraClient.get('/usercollection/daily_readiness');
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/daily_readiness', {
+        params: { start_date, end_date }
+      });
       return {
         contents: [{
-          uri: "oura://daily_readiness",
-          text: JSON.stringify(response.data, null, 2)
+          uri: uri.href,
+          text: JSON.stringify(response.data)
         }]
       };
     } catch (error) {
@@ -103,16 +148,22 @@ server.resource(
   }
 );
 
+// Heart Rate
 server.resource(
   "heart-rate",
-  "oura://heart_rate",
-  async () => {
+  new ResourceTemplate("oura://heart_rate/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
     try {
-      const response = await ouraClient.get('/usercollection/heartrate');
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/heartrate', {
+        params: { start_date, end_date }
+      });
       return {
         contents: [{
-          uri: "oura://heart_rate",
-          text: JSON.stringify(response.data, null, 2)
+          uri: uri.href,
+          text: JSON.stringify(response.data)
         }]
       };
     } catch (error) {
@@ -122,17 +173,175 @@ server.resource(
   }
 );
 
+// Sessions
+server.resource(
+  "sessions",
+  new ResourceTemplate("oura://sessions/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/session', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+      throw error;
+    }
+  }
+);
+
+// Tags
+server.resource(
+  "tags",
+  new ResourceTemplate("oura://tags/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/tag', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+      throw error;
+    }
+  }
+);
+
+// Workouts
+server.resource(
+  "workouts",
+  new ResourceTemplate("oura://workouts/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/workout', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching workouts:', error);
+      throw error;
+    }
+  }
+);
+
+// Daily Stress
+server.resource(
+  "daily-stress",
+  new ResourceTemplate("oura://daily_stress/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/daily_stress', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching daily stress:', error);
+      throw error;
+    }
+  }
+);
+
+// Rest Mode Period
+server.resource(
+  "rest-mode",
+  new ResourceTemplate("oura://rest_mode/{start_date}/{end_date}", {
+    list: undefined
+  }),
+  async (uri: URL, variables: Variables) => {
+    try {
+      const { start_date, end_date } = variables;
+      const response = await ouraClient.get('/usercollection/rest_mode_period', {
+        params: { start_date, end_date }
+      });
+      return {
+        contents: [{
+          uri: uri.href,
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching rest mode periods:', error);
+      throw error;
+    }
+  }
+);
+
+// Ring Configuration
+server.resource(
+  "ring-configuration",
+  "oura://ring_configuration",
+  async () => {
+    try {
+      const response = await ouraClient.get('/usercollection/ring_configuration');
+      return {
+        contents: [{
+          uri: "oura://ring_configuration",
+          text: JSON.stringify(response.data)
+        }]
+      };
+    } catch (error) {
+      console.error('Error fetching ring configuration:', error);
+      throw error;
+    }
+  }
+);
+
 // Add a tool to search through Oura data
 server.tool(
   "search-oura-data",
-  { query: z.string() },
-  async ({ query }: { query: string }) => {
+  {
+    query: z.string(),
+    start_date: z.string().optional(),
+    end_date: z.string().optional()
+  },
+  async (args: { query: string; start_date?: string; end_date?: string }, extra) => {
+    const { query, start_date, end_date } = args;
+
     const endpoints = [
       { path: '/usercollection/personal_info', name: 'Personal Info' },
       { path: '/usercollection/daily_sleep', name: 'Daily Sleep' },
+      { path: '/usercollection/sleep', name: 'Sleep' },
       { path: '/usercollection/daily_activity', name: 'Daily Activity' },
       { path: '/usercollection/daily_readiness', name: 'Daily Readiness' },
       { path: '/usercollection/heartrate', name: 'Heart Rate' },
+      { path: '/usercollection/session', name: 'Sessions' },
+      { path: '/usercollection/tag', name: 'Tags' },
+      { path: '/usercollection/workout', name: 'Workouts' },
+      { path: '/usercollection/daily_stress', name: 'Daily Stress' },
+      { path: '/usercollection/rest_mode_period', name: 'Rest Mode' },
+      { path: '/usercollection/ring_configuration', name: 'Ring Configuration' }
     ];
 
     const results = [];
@@ -141,7 +350,11 @@ server.tool(
     for (const endpoint of endpoints) {
       if (endpoint.name.toLowerCase().includes(queryLower)) {
         try {
-          const response = await ouraClient.get(endpoint.path);
+          const params: Record<string, string> = {};
+          if (start_date) params.start_date = start_date;
+          if (end_date) params.end_date = end_date;
+
+          const response = await ouraClient.get(endpoint.path, { params });
           results.push({
             name: endpoint.name,
             data: response.data
@@ -154,8 +367,8 @@ server.tool(
 
     return {
       content: [{
-        type: "text",
-        text: JSON.stringify(results, null, 2)
+        type: "text" as const,
+        text: JSON.stringify(results)
       }]
     };
   }
@@ -166,4 +379,4 @@ const transport = new StdioServerTransport();
 server.connect(transport).catch((error: unknown) => {
   console.error('Failed to start server:', error);
   process.exit(1);
-}); 
+});
