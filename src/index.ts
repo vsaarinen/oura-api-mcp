@@ -32,6 +32,9 @@ const server = new McpServer({
 server.resource(
   "personal-info",
   "oura://personal_info",
+  {
+    description: "User's personal information including age, weight, height, and biological sex from their Oura profile"
+  },
   async () => {
     try {
       const response = await ouraClient.get('/usercollection/personal_info');
@@ -54,6 +57,9 @@ server.resource(
   new ResourceTemplate("oura://daily_sleep/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Daily sleep metrics including total sleep time, sleep score, and sleep efficiency. Dates should be in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -79,6 +85,9 @@ server.resource(
   new ResourceTemplate("oura://sleep/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Detailed sleep analysis including sleep stages, heart rate, HRV, and temperature variations for individual sleep sessions. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -104,6 +113,9 @@ server.resource(
   new ResourceTemplate("oura://daily_activity/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Daily activity metrics including steps, calories burned, activity score, and movement throughout the day. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -129,6 +141,9 @@ server.resource(
   new ResourceTemplate("oura://daily_readiness/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Daily readiness score and contributing factors like sleep balance, activity balance, and body temperature. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -154,6 +169,9 @@ server.resource(
   new ResourceTemplate("oura://heart_rate/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Continuous heart rate measurements throughout the day and night, providing insights into cardiovascular health. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -179,6 +197,9 @@ server.resource(
   new ResourceTemplate("oura://sessions/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Meditation, relaxation, and other focused sessions recorded by the user. Includes session type, duration, and biometric data. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -204,6 +225,9 @@ server.resource(
   new ResourceTemplate("oura://tags/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "User-created tags and annotations for tracking lifestyle factors, symptoms, or other personal markers. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -229,6 +253,9 @@ server.resource(
   new ResourceTemplate("oura://workouts/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Workout sessions including type, duration, intensity, and associated biometric data. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -254,6 +281,9 @@ server.resource(
   new ResourceTemplate("oura://daily_stress/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Daily stress levels and recovery metrics based on heart rate variability and other biometric data. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -279,6 +309,9 @@ server.resource(
   new ResourceTemplate("oura://rest_mode/{start_date}/{end_date}", {
     list: undefined
   }),
+  {
+    description: "Periods when the user has enabled Rest Mode, indicating times of illness, recovery, or reduced activity. Dates in YYYY-MM-DD format."
+  },
   async (uri: URL, variables: Variables) => {
     try {
       const { start_date, end_date } = variables;
@@ -302,6 +335,9 @@ server.resource(
 server.resource(
   "ring-configuration",
   "oura://ring_configuration",
+  {
+    description: "Technical details about the user's Oura ring including hardware version, firmware version, and sizing information"
+  },
   async () => {
     try {
       const response = await ouraClient.get('/usercollection/ring_configuration');
