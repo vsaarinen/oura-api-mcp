@@ -1,5 +1,5 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 async function main() {
   // Create client and transport
@@ -7,7 +7,8 @@ async function main() {
     name: "Oura API Test Client",
     version: "1.0.0"
   });
-  const transport = new StdioClientTransport({ command: 'npm', args: ['start'] });
+  const baseUrl = new URL("http://localhost:3000/mcp");
+  const transport = new StreamableHTTPClientTransport(baseUrl);
 
   try {
     // Connect to server

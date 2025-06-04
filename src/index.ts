@@ -1,7 +1,8 @@
 import { config } from 'dotenv';
 import axios from 'axios';
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
 config();
@@ -19,6 +20,10 @@ const ouraClient = axios.create({
     Authorization: `Bearer ${OURA_API_TOKEN}`,
   },
 });
+
+// Create Express app
+const app = express();
+app.use(express.json());
 
 type Variables = Record<string, string | string[]>;
 
@@ -410,9 +415,64 @@ server.tool(
   }
 );
 
-// Start the server with stdio transport
-const transport = new StdioServerTransport();
-server.connect(transport).catch((error: unknown) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
+// Handle POST requests
+app.post('/mcp', async (req: Request, res: Response) => {
+  try {
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined, // Stateless mode
+    });
+    
+    res.on('close', () => {
+      console.log('Request closed');
+      transport.close();
+      server.close();
+    });
+    
+    await server.connect(transport);
+    await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    console.error('Error handling MCP request:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        jsonrpc: '2.0',
+        error: {
+          code: -32603,
+          message: 'Internal server error',
+        },
+        id: null,
+      });
+    }
+  }
+});
+
+// Handle GET requests (not needed in stateless mode)
+app.get('/mcp', async (req: Request, res: Response) => {
+  console.log('Received GET MCP request');
+  res.writeHead(405).end(JSON.stringify({
+    jsonrpc: "2.0",
+    error: {
+      code: -32000,
+      message: "Method not allowed."
+    },
+    id: null
+  }));
+});
+
+// Handle DELETE requests (not needed in stateless mode)
+app.delete('/mcp', async (req: Request, res: Response) => {
+  console.log('Received DELETE MCP request');
+  res.writeHead(405).end(JSON.stringify({
+    jsonrpc: "2.0",
+    error: {
+      code: -32000,
+      message: "Method not allowed."
+    },
+    id: null
+  }));
+});
+
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`MCP server listening on port ${port}`);
 });
