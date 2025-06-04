@@ -65,6 +65,26 @@ Dates should be provided in ISO 8601 format (YYYY-MM-DD).
     - `start_date` (optional): Start date in YYYY-MM-DD format
     - `end_date` (optional): End date in YYYY-MM-DD format
 
+## Testing
+
+### Manual Testing
+1. Start the server in one terminal:
+```bash
+npm start
+```
+
+2. In another terminal, run the test client:
+```bash
+npm run client
+```
+
+The test client will:
+- Connect to the server
+- List available resources and tools
+- Test the personal info resource
+- Test daily sleep data with a date range
+- Test the search tool
+
 ## Security Note
 
 Make sure to keep your Oura API token secure and never commit it to version control. 
