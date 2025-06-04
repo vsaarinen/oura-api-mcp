@@ -20,6 +20,11 @@ async function main() {
     console.log('\nAvailable Resources:');
     response.resources.forEach((r) => console.log(`- ${r.name}: ${r.template || r.uri}`));
 
+    // List available resource templates
+    const response2 = await client.listResourceTemplates()
+    console.log('\nAvailable Resource Templates:');
+    response2.resourceTemplates.forEach((r) => console.log(`- ${r.name}: ${r.uriTemplate}`));
+
     // List available tools
     const toolsResponse = await client.listTools();
     console.log('\nAvailable Tools:');
