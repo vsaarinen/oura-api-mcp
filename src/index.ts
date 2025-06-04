@@ -1,31 +1,14 @@
-import { config } from 'dotenv';
 import axios from 'axios';
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
-config();
-
 const OURA_API_BASE_URL = 'https://api.ouraring.com/v2';
-const OURA_API_TOKEN = process.env.OURA_API_TOKEN;
-
-if (!OURA_API_TOKEN) {
-  throw new Error('OURA_API_TOKEN environment variable is required');
-}
-
-const ouraClient = axios.create({
-  baseURL: OURA_API_BASE_URL,
-  headers: {
-    Authorization: `Bearer ${OURA_API_TOKEN}`,
-  },
-});
 
 // Create Express app
 const app = express();
 app.use(express.json());
-
-type Variables = Record<string, string | string[]>;
 
 // Create an MCP server
 const server = new McpServer({
@@ -33,19 +16,40 @@ const server = new McpServer({
   version: "1.0.0"
 });
 
+// Helper function to get Oura client with token
+function getOuraClient(token: string | string[] /* should only be a string */) {
+  return axios.create({
+    baseURL: OURA_API_BASE_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+// TODO: It would be much better to get the token from the auth header (third param of the callback in resources)
+// but it seems the MCP client SDK doesn't support setting an auth header, only OAuth2.
+
 // Personal Info
 server.resource(
   "personal-info",
-  "oura://personal_info",
+  new ResourceTemplate("oura://personal_info/{token}", {
+    list: undefined
+  }),
   {
     description: "User's personal information including age, weight, height, and biological sex from their Oura profile"
   },
-  async () => {
+  async (_uri: URL, variables) => {
     try {
+      const { token } = variables;
+      if (!token) {
+        throw new Error('Token parameter required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/personal_info');
       return {
         contents: [{
-          uri: "oura://personal_info",
+          uri: _uri.href,
           text: JSON.stringify(response.data)
         }]
       };
@@ -59,15 +63,20 @@ server.resource(
 // Daily Sleep
 server.resource(
   "daily-sleep",
-  new ResourceTemplate("oura://daily_sleep/{start_date}/{end_date}", {
+  new ResourceTemplate("oura://daily_sleep/{token}/{start_date}/{end_date}", {
     list: undefined
   }),
   {
     description: "Daily sleep metrics including total sleep time, sleep score, and sleep efficiency. Dates should be in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      if (!token) {
+        throw new Error('Token parameter required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/daily_sleep', {
         params: { start_date, end_date }
       });
@@ -93,9 +102,15 @@ server.resource(
   {
     description: "Detailed sleep analysis including sleep stages, heart rate, HRV, and temperature variations for individual sleep sessions. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/sleep', {
         params: { start_date, end_date }
       });
@@ -121,9 +136,15 @@ server.resource(
   {
     description: "Daily activity metrics including steps, calories burned, activity score, and movement throughout the day. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/daily_activity', {
         params: { start_date, end_date }
       });
@@ -149,9 +170,15 @@ server.resource(
   {
     description: "Daily readiness score and contributing factors like sleep balance, activity balance, and body temperature. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/daily_readiness', {
         params: { start_date, end_date }
       });
@@ -177,9 +204,15 @@ server.resource(
   {
     description: "Continuous heart rate measurements throughout the day and night, providing insights into cardiovascular health. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/heartrate', {
         params: { start_date, end_date }
       });
@@ -205,9 +238,15 @@ server.resource(
   {
     description: "Meditation, relaxation, and other focused sessions recorded by the user. Includes session type, duration, and biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/session', {
         params: { start_date, end_date }
       });
@@ -233,9 +272,15 @@ server.resource(
   {
     description: "User-created tags and annotations for tracking lifestyle factors, symptoms, or other personal markers. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/tag', {
         params: { start_date, end_date }
       });
@@ -261,9 +306,15 @@ server.resource(
   {
     description: "Workout sessions including type, duration, intensity, and associated biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/workout', {
         params: { start_date, end_date }
       });
@@ -289,9 +340,15 @@ server.resource(
   {
     description: "Daily stress levels and recovery metrics based on heart rate variability and other biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/daily_stress', {
         params: { start_date, end_date }
       });
@@ -317,9 +374,15 @@ server.resource(
   {
     description: "Periods when the user has enabled Rest Mode, indicating times of illness, recovery, or reduced activity. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables: Variables) => {
+  async (uri: URL, variables, extra) => {
     try {
-      const { start_date, end_date } = variables;
+      const { token, start_date, end_date } = variables;
+      
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/rest_mode_period', {
         params: { start_date, end_date }
       });
@@ -339,12 +402,20 @@ server.resource(
 // Ring Configuration
 server.resource(
   "ring-configuration",
-  "oura://ring_configuration",
+  new ResourceTemplate("oura://ring_configuration/{token}", {
+    list: undefined
+  }),
   {
     description: "Technical details about the user's Oura ring including hardware version, firmware version, and sizing information"
   },
-  async () => {
+  async (_uri: URL, variables) => {
     try {
+      const { token } = variables;
+      if (!token) {
+        throw new Error('Authorization token required');
+      }
+
+      const ouraClient = getOuraClient(token);
       const response = await ouraClient.get('/usercollection/ring_configuration');
       return {
         contents: [{
@@ -363,13 +434,19 @@ server.resource(
 server.tool(
   "search-oura-data",
   {
+    token: z.string(),
     query: z.string(),
     start_date: z.string().optional(),
     end_date: z.string().optional()
   },
-  async (args: { query: string; start_date?: string; end_date?: string }, extra) => {
-    const { query, start_date, end_date } = args;
+  async (args, extra) => {
+    const { query, start_date, end_date, token } = args;
 
+    if (!token) {
+      throw new Error('Authorization token required');
+    }
+
+    const ouraClient = getOuraClient(token);
     const endpoints = [
       { path: '/usercollection/personal_info', name: 'Personal Info' },
       { path: '/usercollection/daily_sleep', name: 'Daily Sleep' },
@@ -446,7 +523,7 @@ app.post('/mcp', async (req: Request, res: Response) => {
 });
 
 // Handle GET requests (not needed in stateless mode)
-app.get('/mcp', async (req: Request, res: Response) => {
+app.get('/mcp', async (_req: Request, res: Response) => {
   console.log('Received GET MCP request');
   res.writeHead(405).end(JSON.stringify({
     jsonrpc: "2.0",
@@ -459,7 +536,7 @@ app.get('/mcp', async (req: Request, res: Response) => {
 });
 
 // Handle DELETE requests (not needed in stateless mode)
-app.delete('/mcp', async (req: Request, res: Response) => {
+app.delete('/mcp', async (_req: Request, res: Response) => {
   console.log('Received DELETE MCP request');
   res.writeHead(405).end(JSON.stringify({
     jsonrpc: "2.0",

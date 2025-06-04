@@ -1,19 +1,33 @@
+import { config } from 'dotenv';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
+// Load access token from .env file
+config();
+
 async function main() {
-  // Create client and transport
-  const client = new Client({
-    name: "Oura API Test Client",
-    version: "1.0.0"
-  });
-  const baseUrl = new URL("http://localhost:3000/mcp");
-  const transport = new StreamableHTTPClientTransport(baseUrl);
+  // Get Oura token from environment variable
+  const ouraToken = process.env.OURA_API_TOKEN;
+  if (!ouraToken) {
+    throw new Error("OURA_API_TOKEN environment variable is required");
+  }
+
+  let transport: StreamableHTTPClientTransport | undefined;
 
   try {
-    // Connect to server
+    // Create client
+    const client = new Client({
+      name: "oura-client",
+      version: "1.0.0"
+    });
+
+    // Create transport
+    const baseUrl = new URL("http://localhost:3000/mcp");
+    transport = new StreamableHTTPClientTransport(baseUrl);
+    
+    console.log("Connecting to MCP server...");
     await client.connect(transport);
-    console.log('Connected to server');
+    console.log("Connected successfully!");
 
     // List available resources
     const response = await client.listResources()
@@ -25,15 +39,10 @@ async function main() {
     console.log('\nAvailable Resource Templates:');
     response2.resourceTemplates.forEach((r) => console.log(`- ${r.name}: ${r.uriTemplate}`));
 
-    // List available tools
-    const toolsResponse = await client.listTools();
-    console.log('\nAvailable Tools:');
-    toolsResponse.tools.forEach((t) => console.log(`- ${t.name}`));
-
     // Test personal info resource
     console.log('\nFetching personal info...');
     const personalInfo = await client.readResource({
-      uri: 'oura://personal_info'
+      uri: `oura://personal_info/${ouraToken}`
     });
     console.log('Personal Info:', personalInfo);
 
@@ -43,26 +52,16 @@ async function main() {
     
     console.log('\nFetching daily sleep data...');
     const dailySleep = await client.readResource({
-      uri: `oura://daily_sleep/${yesterday}/${today}`
+      uri: `oura://daily_sleep/${ouraToken}/${yesterday}/${today}`
     });
     console.log('Daily Sleep:', dailySleep);
-
-    // Test search tool
-    console.log('\nTesting search tool...');
-    const searchResult = await client.callTool({
-      name: 'search-oura-data',
-      arguments: {
-        query: 'sleep',
-        start_date: yesterday,
-        end_date: today
-      }
-    });
-    console.log('Search Result:', searchResult);
 
   } catch (error) {
     console.error('Error:', error);
   } finally {
-    await transport.close();
+    if (transport) {
+      await transport.close();
+    }
   }
 }
 
