@@ -38,7 +38,7 @@ server.resource(
   {
     description: "User's personal information including age, weight, height, and biological sex from their Oura profile"
   },
-  async (_uri: URL, variables) => {
+  async (_uri, variables) => {
     try {
       const { token } = variables;
       if (!token) {
@@ -69,7 +69,7 @@ server.resource(
   {
     description: "Daily sleep metrics including total sleep time, sleep score, and sleep efficiency. Dates should be in YYYY-MM-DD format."
   },
-  async (uri: URL, variables) => {
+  async (uri, variables) => {
     try {
       const { token, start_date, end_date } = variables;
       if (!token) {
@@ -102,7 +102,7 @@ server.resource(
   {
     description: "Detailed sleep analysis including sleep stages, heart rate, HRV, and temperature variations for individual sleep sessions. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -136,7 +136,7 @@ server.resource(
   {
     description: "Daily activity metrics including steps, calories burned, activity score, and movement throughout the day. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -170,7 +170,7 @@ server.resource(
   {
     description: "Daily readiness score and contributing factors like sleep balance, activity balance, and body temperature. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -204,7 +204,7 @@ server.resource(
   {
     description: "Continuous heart rate measurements throughout the day and night, providing insights into cardiovascular health. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -238,7 +238,7 @@ server.resource(
   {
     description: "Meditation, relaxation, and other focused sessions recorded by the user. Includes session type, duration, and biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -272,7 +272,7 @@ server.resource(
   {
     description: "User-created tags and annotations for tracking lifestyle factors, symptoms, or other personal markers. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -306,7 +306,7 @@ server.resource(
   {
     description: "Workout sessions including type, duration, intensity, and associated biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -340,7 +340,7 @@ server.resource(
   {
     description: "Daily stress levels and recovery metrics based on heart rate variability and other biometric data. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -374,7 +374,7 @@ server.resource(
   {
     description: "Periods when the user has enabled Rest Mode, indicating times of illness, recovery, or reduced activity. Dates in YYYY-MM-DD format."
   },
-  async (uri: URL, variables, extra) => {
+  async (uri, variables, extra) => {
     try {
       const { token, start_date, end_date } = variables;
       
@@ -408,7 +408,7 @@ server.resource(
   {
     description: "Technical details about the user's Oura ring including hardware version, firmware version, and sizing information"
   },
-  async (_uri: URL, variables) => {
+  async (_uri, variables) => {
     try {
       const { token } = variables;
       if (!token) {
